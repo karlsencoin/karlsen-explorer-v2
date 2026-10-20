@@ -29,8 +29,20 @@ export class ApiError extends Error {
   }
 }
 
+/** Requests that take longer than this fail with a visible error instead of hanging. */
+const TIMEOUT_MS = 20_000;
+
 async function getResponse(path: string, signal?: AbortSignal): Promise<Response> {
-  const res = await fetch(`${API_BASE}${path}`, { signal, headers: { Accept: "application/json" } });
+  const timeout = AbortSignal.timeout(TIMEOUT_MS);
+  const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, { signal: combined, headers: { Accept: "application/json" } });
+  } catch (e) {
+    if (timeout.aborted && !signal?.aborted) throw new ApiError(0, path, `no answer within ${TIMEOUT_MS / 1000} s`);
+    if (e instanceof DOMException && e.name === "AbortError") throw e;
+    throw new ApiError(0, path, `network error (${(e as Error).message})`);
+  }
   if (!res.ok) {
     let detail = res.statusText;
     try {

@@ -1,6 +1,6 @@
 /* Design tokens follow Karlsen AI (ai.karlsencoin.org, --k-* palette):
-   navy grounds, white segmented controls, green only for live/positive states,
-   Sora for headings, Inter for UI, JetBrains Mono for hashes and addresses. */
+   navy grounds, white segmented controls, green only for live/positive states.
+   Type: Sora for headings, Geist for UI, Geist Mono for hashes and addresses. */
 :root {
   --ink-0: #0c1622; /* page */
   --ink-1: #0c1622; /* header */
@@ -32,8 +32,8 @@
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.22);
 
   --font-display: "Sora", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-body: "Geist", "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
 
   --radius: 18px;
   --radius-md: 12px;
@@ -77,7 +77,7 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--ink-0); color: var(--text); }
-body { font-family: var(--font-body); font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--font-body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-feature-settings: "tnum" 1; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { color: var(--accent-hover); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -155,7 +155,7 @@ main.container { padding-top: 40px; padding-bottom: 64px; min-height: calc(100vh
 .icon-btn[aria-pressed="true"] { color: var(--amber); border-color: var(--amber); }
 .check { display: inline-flex; gap: 6px; align-items: center; color: var(--text-muted); cursor: pointer; }
 .table-scroll { overflow-x: auto; }
-table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.data { width: 100%; border-collapse: collapse; font-size: 14px; }
 table.data th { text-align: left; padding: 10px 8px; color: var(--text-muted); font-weight: 500; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
 table.data td { padding: 10px 8px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; white-space: nowrap; }
 table.data th:first-child, table.data td:first-child { padding-left: 20px; }
