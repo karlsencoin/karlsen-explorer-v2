@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 import { api } from "../api/client";
 import { formatSignedPercent, formatUsd } from "../lib/format";
 import { usePoll } from "../lib/usePoll";
+import { ThemeToggle } from "./ThemeToggle";
 
 const NAV = [
   { to: "/", label: "Dashboard", end: true },
@@ -39,7 +40,10 @@ export function Layout() {
               </NavLink>
             ))}
           </nav>
-          <HeaderPrice />
+          <div className="header-tools">
+            <HeaderPrice />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
       <main className="container">

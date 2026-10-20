@@ -4,7 +4,7 @@ The new Karlsen BlockDAG explorer for [explorer.karlsencoin.org](https://explore
 It replaces the legacy React (CRA) explorer and reads all data from
 [karlsen-explorer-api](https://github.com/karlsencoin/karlsen-explorer-api).
 
-Stack: Vite + React 18 + TypeScript. No UI framework; design tokens follow karlsencoin.org.
+Stack: Vite + React 18 + TypeScript. No UI framework; design tokens follow Karlsen AI (ai.karlsencoin.org): navy palette, Sora + Inter, dark and light themes.
 
 ## Status
 
