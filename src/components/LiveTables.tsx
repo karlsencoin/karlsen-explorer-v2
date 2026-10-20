@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import type { LiveBlock, LiveTx } from "../live/feed";
-import { formatAge, formatUtc, groupInt, sompiToKls } from "../lib/format";
+import { formatAge, formatLocal, formatUtc, groupInt, sompiToKls } from "../lib/format";
 import type { TagMap } from "../lib/tags";
 import { useNow } from "../lib/useNow";
 import { AddressLink, BlockLink, TxLink } from "./Links";
@@ -45,8 +45,11 @@ export function LatestBlocks(props: { blocks: LiveBlock[]; paused: boolean; onTo
         <table className="data">
           <thead>
             <tr>
-              <th scope="col" title="Time since this explorer received the block; hover a value for the block timestamp">
+              <th scope="col" title="Time since this explorer received the block">
                 Seen
+              </th>
+              <th scope="col" title="Block timestamp set by the miner, in your local time">
+                Timestamp
               </th>
               <th scope="col">Blue score</th>
               <th scope="col" className="num">
@@ -58,13 +61,14 @@ export function LatestBlocks(props: { blocks: LiveBlock[]; paused: boolean; onTo
           <tbody>
             {rows.length === 0 ? (
               <tr className="empty-row">
-                <td colSpan={4}>Waiting for blocks…</td>
+                <td colSpan={5}>Waiting for blocks…</td>
               </tr>
             ) : (
               rows.map((b) => (
                 <tr key={b.hash} className="fresh">
-                  <td className="muted" title={`block time ${formatUtc(b.timeMs)} UTC`}>
-                    {formatAge(b.seenMs ?? b.timeMs, now)} ago
+                  <td className="muted">{formatAge(b.seenMs ?? b.timeMs, now)} ago</td>
+                  <td className="mono" title={`${formatUtc(b.timeMs)} UTC`}>
+                    {formatLocal(b.timeMs)}
                   </td>
                   <td>{groupInt(b.blueScore)}</td>
                   <td className="num">{b.txCount}</td>

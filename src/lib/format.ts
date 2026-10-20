@@ -98,3 +98,10 @@ export function formatUtc(ms: number): string {
 export function shortHash(h: string, head = 12, tail = 10): string {
   return h.length <= head + tail + 1 ? h : `${h.slice(0, head)}…${h.slice(-tail)}`;
 }
+
+/** Local time "2026-10-20 13:18:06" in the viewer's time zone (as the legacy explorer showed). */
+export function formatLocal(ms: number): string {
+  const d = new Date(ms);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
