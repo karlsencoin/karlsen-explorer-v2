@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import type { LiveBlock, LiveTx } from "../live/feed";
-import { formatAge, groupInt, sompiToKls } from "../lib/format";
+import { formatAge, formatUtc, groupInt, sompiToKls } from "../lib/format";
 import type { TagMap } from "../lib/tags";
 import { useNow } from "../lib/useNow";
 import { AddressLink, BlockLink, TxLink } from "./Links";
@@ -45,7 +45,9 @@ export function LatestBlocks(props: { blocks: LiveBlock[]; paused: boolean; onTo
         <table className="data">
           <thead>
             <tr>
-              <th scope="col">Age</th>
+              <th scope="col" title="Time since this explorer received the block; hover a value for the block timestamp">
+                Seen
+              </th>
               <th scope="col">Blue score</th>
               <th scope="col" className="num">
                 Txs
@@ -61,7 +63,9 @@ export function LatestBlocks(props: { blocks: LiveBlock[]; paused: boolean; onTo
             ) : (
               rows.map((b) => (
                 <tr key={b.hash} className="fresh">
-                  <td className="muted">{formatAge(b.timeMs, now)}</td>
+                  <td className="muted" title={`block time ${formatUtc(b.timeMs)} UTC`}>
+                    {formatAge(b.seenMs ?? b.timeMs, now)} ago
+                  </td>
                   <td>{groupInt(b.blueScore)}</td>
                   <td className="num">{b.txCount}</td>
                   <td>

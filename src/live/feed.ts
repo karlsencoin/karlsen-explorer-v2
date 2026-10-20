@@ -24,6 +24,12 @@ export interface LiveBlock {
   blueScore: bigint;
   daaScore: bigint;
   txCount: number;
+  /**
+   * When this explorer received the block (ms). The block's own timestamp is set by
+   * the miner when it takes the template, so it is typically 0.3-3 s older than the
+   * moment the block reaches us. Unset for blocks from the initial snapshot.
+   */
+  seenMs?: number;
   /** Unknown (undefined) for blocks from the stream: chain status is decided later. */
   isChainBlock?: boolean;
   txs: LiveTx[];
@@ -97,6 +103,8 @@ export class PollingFeed implements LiveFeed {
             await Promise.allSettled(batch.map((h) => api.block(h, true)))
           ).flatMap((r) => (r.status === "fulfilled" ? [toLiveBlock(r.value)] : []));
           blocks.sort((a, b) => (a.blueScore === b.blueScore ? a.timeMs - b.timeMs : a.blueScore < b.blueScore ? -1 : 1));
+          const seenAt = Date.now();
+          blocks.forEach((b) => (b.seenMs = seenAt));
           if (!stopped && blocks.length) onBlocks(blocks);
           failures = 0;
           if (!stopped) onStatus("live");
@@ -177,6 +185,11 @@ export class SseFeed implements LiveFeed {
     const handle = (e: MessageEvent<string>) => {
       onStatus("live");
       const blocks = parseBatch(e.data);
+      // Snapshot blocks arrived before this page opened; only live batches get a seen time.
+      if (e.type === "blocks") {
+        const seenAt = Date.now();
+        blocks.forEach((b) => (b.seenMs = seenAt));
+      }
       if (blocks.length) onBlocks(blocks);
     };
     es.addEventListener("snapshot", handle as EventListener);
