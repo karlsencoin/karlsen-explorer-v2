@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { shortAddress, withPrefix } from "../lib/address";
 import { shortHash } from "../lib/format";
 
-export function BlockLink({ hash, short = true }: { hash: string; short?: boolean }) {
+export function BlockLink({ hash, short = false }: { hash: string; short?: boolean }) {
   return (
     <Link to={`/blocks/${hash}`} title={hash} className="mono">
       {short ? shortHash(hash) : hash}
@@ -10,7 +10,7 @@ export function BlockLink({ hash, short = true }: { hash: string; short?: boolea
   );
 }
 
-export function TxLink({ id, short = true }: { id: string; short?: boolean }) {
+export function TxLink({ id, short = false }: { id: string; short?: boolean }) {
   return (
     <Link to={`/txs/${id}`} title={id} className="mono">
       {short ? shortHash(id, 10, 8) : id}
@@ -18,7 +18,7 @@ export function TxLink({ id, short = true }: { id: string; short?: boolean }) {
   );
 }
 
-export function AddressLink({ address, tag, short = true }: { address: string; tag?: string; short?: boolean }) {
+export function AddressLink({ address, tag, short = false }: { address: string; tag?: string; short?: boolean }) {
   if (!address) return <span className="muted">—</span>;
   const full = withPrefix(address);
   return (

@@ -85,7 +85,7 @@ a:hover { color: var(--accent-hover); }
 .muted { color: var(--text-muted); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.container { max-width: 1280px; margin: 0 auto; padding: 0 var(--gutter); }
+.container { max-width: 1680px; margin: 0 auto; padding: 0 var(--gutter); }
 @media (max-width: 600px) { :root { --gutter: 16px; } }
 
 /* Header */
@@ -145,8 +145,8 @@ main.container { padding-top: 40px; padding-bottom: 64px; min-height: calc(100vh
 .card-error { font-size: 12px; color: var(--amber); }
 
 /* Live tables */
-.live-grid { display: flex; flex-wrap: wrap; gap: 16px; }
-.live-grid > .card { flex: 1 1 520px; min-width: 0; overflow: hidden; }
+.live-grid { display: flex; flex-direction: column; gap: 16px; }
+.live-grid > .card { min-width: 0; overflow: hidden; }
 .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .card-head h2 { margin: 0; font-family: var(--font-display); font-size: 18px; font-weight: 600; }
 .card-tools { display: flex; gap: 12px; align-items: center; font-size: 13px; }
