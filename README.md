@@ -31,9 +31,10 @@ npm run build           # type-check + production build into dist/
 ## Live data
 
 Components consume the `LiveFeed` interface (`src/live/feed.ts`).
-The current implementation (`PollingFeed`) polls `/info/blockdag` tips once per second
-and fetches unseen blocks. It is an interim solution; a streaming endpoint in
-karlsen-explorer-api will replace it before the network moves to 10 BPS.
+The default `SseFeed` reads `/live/stream` from karlsen-explorer-api: the API holds one
+node subscription for all viewers and sends blocks in batches, which keeps working
+at 10 BPS. `PollingFeed` (polls `/info/blockdag` tips) is kept as a fallback:
+build with `VITE_LIVE_MODE=poll`.
 
 ## Address tags
 

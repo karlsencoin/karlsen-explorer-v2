@@ -23,12 +23,14 @@ export function useLiveBlocks(paused: boolean, keep = 20, feed: LiveFeed = defau
       const known = new Set(s.blocks.map((b) => b.hash));
       const fresh = incoming.filter((b) => !known.has(b.hash));
       if (!fresh.length) return s;
-      const newestFirst = [...fresh].reverse();
-      const txs = newestFirst.flatMap((b) => [...b.txs].reverse());
+      const byScore = (a: LiveBlock, b: LiveBlock) =>
+        a.blueScore === b.blueScore ? b.timeMs - a.timeMs : a.blueScore > b.blueScore ? -1 : 1;
+      const blocks = [...fresh, ...s.blocks].sort(byScore).slice(0, keep);
+      const freshTxs = [...fresh].sort(byScore).flatMap((b) => [...b.txs].reverse());
       return {
         ...s,
-        blocks: [...newestFirst, ...s.blocks].slice(0, keep),
-        txs: [...txs, ...s.txs].slice(0, keep * 5),
+        blocks,
+        txs: [...freshTxs, ...s.txs].slice(0, keep * 5),
       };
     });
   };

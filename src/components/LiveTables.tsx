@@ -66,7 +66,7 @@ export function LatestBlocks(props: { blocks: LiveBlock[]; paused: boolean; onTo
                   <td className="num">{b.txCount}</td>
                   <td>
                     <BlockLink hash={b.hash} />
-                    {!b.isChainBlock ? <span className="badge-red">off-chain</span> : null}
+                    {b.isChainBlock === false ? <span className="badge-red">off-chain</span> : null}
                   </td>
                 </tr>
               ))

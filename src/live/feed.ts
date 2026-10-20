@@ -1,12 +1,12 @@
-import { api } from "../api/client";
+import { api, API_BASE } from "../api/client";
 import type { Block } from "../api/types";
 import { toBigInt } from "../lib/format";
 
 // Live block/transaction stream.
 //
-// The UI only depends on the LiveFeed interface. Today the only implementation
-// polls /info/blockdag tips; once karlsen-explorer-api exposes its streaming
-// endpoint, an SSE-backed feed replaces it without touching components.
+// The UI only depends on the LiveFeed interface. The default is SseFeed, which
+// reads karlsen-explorer-api's /live/stream (one shared node subscription on the
+// server, batched blocks). PollingFeed remains as a fallback (VITE_LIVE_MODE=poll).
 
 export interface LiveTx {
   id: string;
@@ -24,7 +24,8 @@ export interface LiveBlock {
   blueScore: bigint;
   daaScore: bigint;
   txCount: number;
-  isChainBlock: boolean;
+  /** Unknown (undefined) for blocks from the stream: chain status is decided later. */
+  isChainBlock?: boolean;
   txs: LiveTx[];
 }
 
@@ -115,4 +116,76 @@ export class PollingFeed implements LiveFeed {
   }
 }
 
-export const defaultFeed: LiveFeed = new PollingFeed();
+// ---- SSE feed ----
+
+interface WireTx {
+  id: string;
+  amount: string; // sompi
+  to: string;
+  outputs: number;
+  coinbase: boolean;
+}
+
+interface WireBlock {
+  hash: string;
+  timestamp: number; // unix ms
+  blueScore: string;
+  daaScore: string;
+  txCount: number;
+  txs: WireTx[];
+}
+
+function fromWire(b: WireBlock): LiveBlock {
+  return {
+    hash: b.hash,
+    timeMs: b.timestamp,
+    blueScore: toBigInt(b.blueScore),
+    daaScore: toBigInt(b.daaScore),
+    txCount: b.txCount,
+    txs: b.txs.map((t) => ({
+      id: t.id,
+      blockHash: b.hash,
+      timeMs: b.timestamp,
+      amountSompi: toBigInt(t.amount),
+      to: t.to,
+      outputs: t.outputs,
+      coinbase: t.coinbase,
+    })),
+  };
+}
+
+function parseBatch(data: string): LiveBlock[] {
+  try {
+    const parsed = JSON.parse(data) as { blocks?: WireBlock[] };
+    return (parsed.blocks ?? []).map(fromWire);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Server-Sent Events from /live/stream. EventSource reconnects by itself;
+ * every (re)connect starts with a `snapshot`, duplicates are dropped by hash
+ * in useLiveBlocks.
+ */
+export class SseFeed implements LiveFeed {
+  constructor(private readonly url = `${API_BASE}/live/stream`) {}
+
+  subscribe(onBlocks: (blocks: LiveBlock[]) => void, onStatus: (s: FeedStatus) => void): () => void {
+    onStatus("connecting");
+    const es = new EventSource(this.url);
+    const handle = (e: MessageEvent<string>) => {
+      onStatus("live");
+      const blocks = parseBatch(e.data);
+      if (blocks.length) onBlocks(blocks);
+    };
+    es.addEventListener("snapshot", handle as EventListener);
+    es.addEventListener("blocks", handle as EventListener);
+    es.onopen = () => onStatus("live");
+    es.onerror = () => onStatus(es.readyState === EventSource.CLOSED ? "degraded" : "connecting");
+    return () => es.close();
+  }
+}
+
+export const defaultFeed: LiveFeed =
+  import.meta.env.VITE_LIVE_MODE === "poll" || typeof EventSource === "undefined" ? new PollingFeed() : new SseFeed();
