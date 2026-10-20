@@ -46,6 +46,10 @@ a:hover { color: var(--accent-hover); }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-family: var(--font-display); font-weight: 700; font-size: 18px; }
 .brand:hover { color: var(--text); }
 .brand span { color: var(--text-muted); font-weight: 500; }
+.brand-logo { width: 32px; height: 32px; border-radius: 50%; flex: none; }
+.hero-title { display: flex; align-items: center; gap: 18px; }
+.hero-logo { width: 72px; height: 72px; border-radius: 50%; flex: none; box-shadow: 0 0 32px rgba(6, 214, 208, 0.18); }
+@media (max-width: 600px) { .hero-logo { width: 52px; height: 52px; } .hero-title { gap: 12px; } }
 .nav { display: flex; flex-wrap: wrap; gap: 4px; }
 .nav a { padding: 8px 12px; border-radius: var(--radius-sm); color: var(--text-muted); font-weight: 500; }
 .nav a:hover { color: var(--text); background: var(--ink-3); }

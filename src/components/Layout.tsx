@@ -29,10 +29,7 @@ export function Layout() {
       <header className="site-header">
         <div className="container">
           <Link to="/" className="brand" aria-label="Karlsen Explorer home">
-            <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
-              <circle cx="14" cy="14" r="13" fill="none" stroke="#06D6D0" strokeWidth="2" />
-              <path d="M10 7v14M10 14l7-7M10 14l7 7" fill="none" stroke="#06D6D0" strokeWidth="2" strokeLinecap="round" />
-            </svg>
+            <img src="/karlsen-logo.png" alt="" width="32" height="32" className="brand-logo" />
             Karlsen <span>Explorer</span>
           </Link>
           <nav className="nav" aria-label="Main">

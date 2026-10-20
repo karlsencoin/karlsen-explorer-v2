@@ -41,7 +41,10 @@ export function Dashboard() {
           <span className={`dot ${!paused && live.status === "live" ? "live" : live.status === "degraded" ? "degraded" : ""}`} aria-hidden="true" />
           <span className="eyebrow">karlsen-mainnet · {statusLabel}</span>
         </div>
-        <h1>Explore the Karlsen BlockDAG</h1>
+        <div className="hero-title">
+          <img src="/karlsen-logo.png" alt="Karlsen logo" width="72" height="72" className="hero-logo" />
+          <h1>Explore the Karlsen BlockDAG</h1>
+        </div>
         <SearchBox />
       </section>
 
