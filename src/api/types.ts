@@ -183,3 +183,79 @@ export interface UtxoPage {
   total: number;
   totalAmount: bigint; // sompi
 }
+
+// ---- analytics (balances table; amounts in KLS as floats, as legacy) ----
+
+export interface RichEntry {
+  address: string; // without the "karlsen:" prefix in legacy rows
+  amount: number; // KLS
+  percent: number; // of total balance
+  delta_24h: number | null; // KLS vs the latest daily snapshot
+  is_new: boolean | null;
+}
+
+export interface TierEntry {
+  tier: string; // "10M+", "1M-10M", ...
+  addresses: number;
+  balance_kls: number;
+  balance_percent: number;
+  delta_1d: number | null;
+  delta_7d: number | null;
+  delta_1d_kls: number | null;
+  delta_7d_kls: number | null;
+}
+
+export interface DistributionSummary {
+  total_addresses: number;
+  total_balance_kls: number;
+  total_delta_1d: number | null;
+  total_delta_7d: number | null;
+  total_delta_1d_kls: number | null;
+  total_delta_7d_kls: number | null;
+  tiers: TierEntry[];
+}
+
+// ---- bridge reserves (karlsen-bridge-reserves service) ----
+
+export interface BridgeReserves {
+  status: "OK" | "UNDERCOLLATERALIZED" | "DEGRADED" | string;
+  rule?: string;
+  generated_at?: number; // unix seconds
+  rechecked?: boolean;
+  collateral_ratio?: string | number;
+  surplus?: { kls: string } | null;
+  errors?: string[];
+  warnings?: string[];
+  karlsen?: {
+    total_reserve_kls?: string;
+    circulating_supply_kls?: string;
+    reserve_share_of_circulating_percent?: string | number;
+    vault_share_of_circulating_percent?: string | number;
+    vault: {
+      address: string;
+      type: string;
+      balance_kls: string;
+      utxo_count: number;
+      pubkeys_script_order?: string[];
+    };
+    hot_wallet?: {
+      address: string;
+      type: string;
+      purpose?: string;
+      balance_kls: string;
+      utxo_count: number;
+      sweep_threshold_kls?: string | null;
+    } | null;
+  };
+  solana?: {
+    launched: boolean;
+    cluster?: string;
+    wkls_mint?: string;
+    mint_authority?: string;
+    freeze_authority?: string | null;
+    bridge_program_id?: string;
+    total_supply_wkls?: string;
+    finalized_slot?: number;
+    verify_url?: string;
+  };
+}

@@ -14,8 +14,8 @@ Stack: Vite + React 18 + TypeScript. No UI framework; design tokens follow karls
 | Blocks (live list), Block detail | done |
 | Transactions (live list), Transaction detail | done |
 | Address (balance, paged history, paged UTXOs) | done |
-| Distribution (+ range tiers) | planned |
-| wKLS Bridge | planned |
+| Distribution (tiers, rich list, tier pages) | done |
+| wKLS Bridge (proof of reserves) | done |
 
 Legacy URLs (`/blocks/:id/:txview`, `/range/:tier`) keep resolving.
 

@@ -4,10 +4,12 @@ import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-
 import { Layout } from "./components/Layout";
 import { AddressPage } from "./pages/AddressPage";
 import { BlockPage } from "./pages/BlockPage";
+import { Bridge } from "./pages/Bridge";
 import { Dashboard } from "./pages/Dashboard";
+import { Distribution, DistributionTier } from "./pages/Distribution";
 import { BlocksPage, TxsPage } from "./pages/LiveLists";
 import { TxPage } from "./pages/TxPage";
-import { NotFound, Placeholder } from "./pages/Placeholder";
+import { NotFound } from "./pages/Placeholder";
 import "./styles.css";
 
 // Legacy URLs kept working: /blocks/:id/:txview, /range/<tier>.
@@ -28,10 +30,10 @@ function App() {
           <Route path="/txs" element={<TxsPage />} />
           <Route path="/txs/:id" element={<TxPage />} />
           <Route path="/addresses/:addr" element={<AddressPage />} />
-          <Route path="/distribution" element={<Placeholder title="Distribution" />} />
-          <Route path="/distribution/:tier" element={<Placeholder title="Distribution range" />} />
+          <Route path="/distribution" element={<Distribution />} />
+          <Route path="/distribution/:tier" element={<DistributionTier />} />
           <Route path="/range/:tier" element={<LegacyRange />} />
-          <Route path="/bridge" element={<Placeholder title="wKLS Bridge" />} />
+          <Route path="/bridge" element={<Bridge />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

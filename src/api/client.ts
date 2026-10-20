@@ -2,6 +2,9 @@ import type {
   AddressBalance,
   Block,
   BlockDagInfo,
+  BridgeReserves,
+  DistributionSummary,
+  RichEntry,
   BlockReward,
   CoinSupply,
   Halving,
@@ -79,4 +82,13 @@ export const api = {
     const totalAmount = BigInt(res.headers.get("x-total-amount") ?? "0");
     return { items, total, totalAmount };
   },
+  richList: (limit: number, offset: number, s?: AbortSignal) =>
+    getJson<{ top_addresses: RichEntry[] }>(`/analytics/addresses/top?limit=${limit}&offset=${offset}`, s).then(
+      (r) => r.top_addresses,
+    ),
+  /** Addresses with min <= balance < max (KLS); max < 0 means no upper bound. */
+  range: (minKls: number, maxKls: number, s?: AbortSignal) =>
+    getJson<RichEntry[]>(`/analytics/addresses/range?min_amount=${minKls}&max_amount=${maxKls}`, s),
+  distributionSummary: (s?: AbortSignal) => getJson<DistributionSummary>("/analytics/addresses/distribution-summary", s),
+  bridgeReserves: (s?: AbortSignal) => getJson<BridgeReserves>("/bridge/reserves", s),
 };
