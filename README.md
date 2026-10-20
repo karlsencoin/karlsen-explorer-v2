@@ -11,9 +11,9 @@ Stack: Vite + React 18 + TypeScript. No UI framework; design tokens follow karls
 | Page | State |
 | --- | --- |
 | Dashboard (supply, reward, BlockDAG, market, live blocks/txs) | done |
-| Blocks, Block detail | next |
-| Transactions, Transaction detail | next |
-| Address (balance, paginated UTXOs, history) | next |
+| Blocks (live list), Block detail | done |
+| Transactions (live list), Transaction detail | done |
+| Address (balance, paged history, paged UTXOs) | done |
 | Distribution (+ range tiers) | planned |
 | wKLS Bridge | planned |
 

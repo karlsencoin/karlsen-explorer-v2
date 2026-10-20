@@ -1,4 +1,5 @@
 import type {
+  AddressBalance,
   Block,
   BlockDagInfo,
   BlockReward,
@@ -7,6 +8,9 @@ import type {
   Hashrate,
   KarlsendInfo,
   MarketData,
+  TxJson,
+  UtxoPage,
+  Utxo,
 } from "./types";
 
 export const API_BASE: string = (import.meta.env.VITE_API_BASE ?? "https://api.karlsencoin.org").replace(/\/$/, "");
@@ -22,8 +26,7 @@ export class ApiError extends Error {
   }
 }
 
-/** GET a JSON resource; non-2xx responses become ApiError instead of silent empties. */
-export async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
+async function getResponse(path: string, signal?: AbortSignal): Promise<Response> {
   const res = await fetch(`${API_BASE}${path}`, { signal, headers: { Accept: "application/json" } });
   if (!res.ok) {
     let detail = res.statusText;
@@ -35,8 +38,15 @@ export async function getJson<T>(path: string, signal?: AbortSignal): Promise<T>
     }
     throw new ApiError(res.status, path, `${res.status} ${detail}`);
   }
-  return (await res.json()) as T;
+  return res;
 }
+
+/** GET a JSON resource; non-2xx responses become ApiError instead of silent empties. */
+export async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
+  return (await (await getResponse(path, signal)).json()) as T;
+}
+
+const enc = encodeURIComponent;
 
 export const api = {
   blockdag: (s?: AbortSignal) => getJson<BlockDagInfo>("/info/blockdag", s),
@@ -51,4 +61,22 @@ export const api = {
       `/blocks/${encodeURIComponent(hash)}?includeTransactions=${includeTransactions ? "true" : "false"}`,
       s,
     ),
+  transaction: (id: string, s?: AbortSignal) =>
+    getJson<TxJson>(`/transactions/${enc(id)}?inputs=true&outputs=true&resolve_previous_outpoints=light`, s),
+  addressBalance: (addr: string, s?: AbortSignal) => getJson<AddressBalance>(`/addresses/${enc(addr)}/balance`, s),
+  addressTxCount: (addr: string, s?: AbortSignal) =>
+    getJson<{ total: number }>(`/addresses/${enc(addr)}/transactions-count`, s),
+  addressTxs: (addr: string, limit: number, offset: number, s?: AbortSignal) =>
+    getJson<TxJson[]>(
+      `/addresses/${enc(addr)}/full-transactions?limit=${limit}&offset=${offset}&resolve_previous_outpoints=light`,
+      s,
+    ),
+  /** Paged UTXOs (newest first); totals come from response headers. */
+  addressUtxos: async (addr: string, limit: number, offset: number, s?: AbortSignal): Promise<UtxoPage> => {
+    const res = await getResponse(`/addresses/${enc(addr)}/utxos?limit=${limit}&offset=${offset}`, s);
+    const items = (await res.json()) as Utxo[];
+    const total = Number(res.headers.get("x-total-count") ?? items.length);
+    const totalAmount = BigInt(res.headers.get("x-total-amount") ?? "0");
+    return { items, total, totalAmount };
+  },
 };

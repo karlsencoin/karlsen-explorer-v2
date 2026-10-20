@@ -2,7 +2,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { Layout } from "./components/Layout";
+import { AddressPage } from "./pages/AddressPage";
+import { BlockPage } from "./pages/BlockPage";
 import { Dashboard } from "./pages/Dashboard";
+import { BlocksPage, TxsPage } from "./pages/LiveLists";
+import { TxPage } from "./pages/TxPage";
 import { NotFound, Placeholder } from "./pages/Placeholder";
 import "./styles.css";
 
@@ -18,12 +22,12 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/blocks" element={<Placeholder title="Blocks" />} />
-          <Route path="/blocks/:id" element={<Placeholder title="Block" />} />
-          <Route path="/blocks/:id/:txview" element={<Placeholder title="Block" />} />
-          <Route path="/txs" element={<Placeholder title="Transactions" />} />
-          <Route path="/txs/:id" element={<Placeholder title="Transaction" />} />
-          <Route path="/addresses/:addr" element={<Placeholder title="Address" />} />
+          <Route path="/blocks" element={<BlocksPage />} />
+          <Route path="/blocks/:id" element={<BlockPage />} />
+          <Route path="/blocks/:id/:txview" element={<BlockPage />} />
+          <Route path="/txs" element={<TxsPage />} />
+          <Route path="/txs/:id" element={<TxPage />} />
+          <Route path="/addresses/:addr" element={<AddressPage />} />
           <Route path="/distribution" element={<Placeholder title="Distribution" />} />
           <Route path="/distribution/:tier" element={<Placeholder title="Distribution range" />} />
           <Route path="/range/:tier" element={<LegacyRange />} />
