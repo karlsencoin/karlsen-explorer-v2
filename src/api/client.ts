@@ -30,7 +30,7 @@ export class ApiError extends Error {
 }
 
 /** Requests that take longer than this fail with a visible error instead of hanging. */
-const TIMEOUT_MS = 20_000;
+const TIMEOUT_MS = 45_000;
 
 async function getResponse(path: string, signal?: AbortSignal): Promise<Response> {
   const timeout = AbortSignal.timeout(TIMEOUT_MS);
