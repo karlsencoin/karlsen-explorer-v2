@@ -14,6 +14,8 @@ import type {
   TxJson,
   UtxoPage,
   Utxo,
+  WalletChain,
+  WalletHistory,
 } from "./types";
 
 export const API_BASE: string = (import.meta.env.VITE_API_BASE ?? "https://api.karlsencoin.org").replace(/\/$/, "");
@@ -94,6 +96,9 @@ export const api = {
     const totalAmount = BigInt(res.headers.get("x-total-amount") ?? "0");
     return { items, total, totalAmount };
   },
+  walletChain: (addr: string, s?: AbortSignal) => getJson<WalletChain>(`/addresses/${enc(addr)}/wallet-chain`, s),
+  walletHistory: (addr: string, limit: number, offset: number, s?: AbortSignal) =>
+    getJson<WalletHistory>(`/addresses/${enc(addr)}/wallet-history?limit=${limit}&offset=${offset}`, s),
   richList: (limit: number, offset: number, s?: AbortSignal) =>
     getJson<{ top_addresses: RichEntry[] }>(`/analytics/addresses/top?limit=${limit}&offset=${offset}`, s).then(
       (r) => r.top_addresses,

@@ -259,3 +259,36 @@ export interface BridgeReserves {
     verify_url?: string;
   };
 }
+
+/** One address of a wallet's change chain (`/addresses/{a}/wallet-chain`). */
+export interface ChainLink {
+  address: string;
+  /** < 0 earlier addresses, 0 the requested one, > 0 later ones. */
+  position: number;
+  via_transaction_id: string | null;
+  via_block_time: number | null;
+}
+
+export interface WalletChain {
+  address: string;
+  addresses: ChainLink[];
+  earlier_truncated: boolean;
+  later_truncated: boolean;
+}
+
+export interface WalletHistoryEntry {
+  transaction_id: string;
+  hash: string;
+  block_time: number;
+  addresses: string[];
+  received_sompi: number;
+  sent_sompi: number;
+  net_sompi: number;
+}
+
+export interface WalletHistory {
+  address: string;
+  chain_length: number;
+  total: number;
+  transactions: WalletHistoryEntry[];
+}

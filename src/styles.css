@@ -243,3 +243,11 @@ ul.plain { margin: 0; padding-left: 18px; }
 .theme-btn:hover { border-color: var(--line-strong); }
 .search input { background: var(--ink-2); }
 .search input:focus { outline: none; border-color: var(--accent); }
+
+/* Addresses and hashes: JetBrains Mono at 500 so long bech32 strings stay legible. */
+.addr, table.data a.mono, .title-hash { font-weight: 500; }
+table.data .addr { font-size: 15px; }
+
+/* Wallet history tab */
+.card-body { margin: 0; padding: 16px 20px; }
+table.data tr.current td { background: var(--ink-3); }
