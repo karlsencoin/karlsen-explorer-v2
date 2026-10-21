@@ -145,7 +145,7 @@ export function Distribution() {
           <article className="card">
             <div className="card-head">
               <h2>Balance tiers</h2>
-              <span className="muted small">deltas vs daily snapshots</span>
+              <span className="muted small">deltas vs snapshots taken 24 h and 7 d earlier</span>
             </div>
             <div className="table-scroll">
               <table className="data tiers">
