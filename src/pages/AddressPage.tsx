@@ -279,7 +279,7 @@ function WalletHistoryView({ addr, page, onPage, tags }: { addr: string; page: n
                                 className={secondary ? "wallet-addr-secondary" : undefined}
                                 title={secondary ? "Also part of this wallet in this transaction (spent from or co-input)" : undefined}
                               >
-                                <AddressLink address={a} short tag={sameAddress(a, addr) ? "this address" : undefined} />
+                                <AddressLink address={a} short tag={sameAddress(a, addr) ? "this address" : tags[withPrefix(a)]} />
                               </div>
                             );
                           })}
@@ -288,7 +288,7 @@ function WalletHistoryView({ addr, page, onPage, tags }: { addr: string; page: n
                         {t.counterparty_address ? (
                           <div title={net > 0n ? "Sent by (largest outside sender)" : "Sent to (largest outside recipient)"}>
                             <span className="muted">{net > 0n ? "from " : "to "}</span>
-                            <AddressLink address={t.counterparty_address} short />
+                            <AddressLink address={t.counterparty_address} short tag={tags[withPrefix(t.counterparty_address)]} />
                             {(t.counterparty_count ?? 0) > 1 && <span className="muted"> +{(t.counterparty_count ?? 0) - 1}</span>}
                           </div>
                         ) : (
