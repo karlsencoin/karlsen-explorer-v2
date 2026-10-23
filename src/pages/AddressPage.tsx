@@ -240,6 +240,7 @@ function WalletHistoryView({ addr, page, onPage, tags }: { addr: string; page: n
                 <th scope="col">Time</th>
                 <th scope="col">Tx id</th>
                 <th scope="col">Wallet address</th>
+                <th scope="col">From / To</th>
                 <th scope="col" className="num">
                   Change
                 </th>
@@ -248,11 +249,11 @@ function WalletHistoryView({ addr, page, onPage, tags }: { addr: string; page: n
             <tbody>
               {!hist.data ? (
                 <tr className="empty-row">
-                  <td colSpan={4}>{hist.error ? `Could not load the wallet history: ${hist.error.message}` : "Loading…"}</td>
+                  <td colSpan={5}>{hist.error ? `Could not load the wallet history: ${hist.error.message}` : "Loading…"}</td>
                 </tr>
               ) : hist.data.transactions.length === 0 ? (
                 <tr className="empty-row">
-                  <td colSpan={4}>No transactions.</td>
+                  <td colSpan={5}>No transactions.</td>
                 </tr>
               ) : (
                 hist.data.transactions.map((t) => {
@@ -282,6 +283,17 @@ function WalletHistoryView({ addr, page, onPage, tags }: { addr: string; page: n
                               </div>
                             );
                           })}
+                      </td>
+                      <td>
+                        {t.counterparty_address ? (
+                          <div title={net > 0n ? "Sent by (largest outside sender)" : "Sent to (largest outside recipient)"}>
+                            <span className="muted">{net > 0n ? "from " : "to "}</span>
+                            <AddressLink address={t.counterparty_address} short />
+                            {(t.counterparty_count ?? 0) > 1 && <span className="muted"> +{(t.counterparty_count ?? 0) - 1}</span>}
+                          </div>
+                        ) : (
+                          <span className="muted">—</span>
+                        )}
                       </td>
                       <td className={`num ${net > 0n ? "pos" : net < 0n ? "neg" : ""}`}>
                         {net > 0n ? "+" : ""}

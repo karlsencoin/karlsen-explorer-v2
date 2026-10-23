@@ -283,6 +283,9 @@ export interface WalletHistoryEntry {
   addresses: string[];
   /** Wallet address the money went to (new change address on a hop). Older APIs omit it. */
   main_address?: string | null;
+  /** Outside address on the other side: largest sender for money in, largest recipient for money out. */
+  counterparty_address?: string | null;
+  counterparty_count?: number;
   received_sompi: number;
   sent_sompi: number;
   net_sompi: number;
