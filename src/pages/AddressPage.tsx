@@ -266,11 +266,22 @@ function WalletHistoryView({ addr, page, onPage, tags }: { addr: string; page: n
                         <TxLink id={t.transaction_id} short />
                       </td>
                       <td>
-                        {t.addresses.map((a) => (
-                          <div key={a}>
-                            <AddressLink address={a} short tag={sameAddress(a, addr) ? "this address" : undefined} />
-                          </div>
-                        ))}
+                        {/* The address the money went to comes first at full strength;
+                            the other wallet addresses it touched are dimmed. */}
+                        {[...t.addresses]
+                          .sort((a, b) => Number(sameAddress(b, t.main_address ?? "")) - Number(sameAddress(a, t.main_address ?? "")))
+                          .map((a) => {
+                            const secondary = !!t.main_address && !sameAddress(a, t.main_address);
+                            return (
+                              <div
+                                key={a}
+                                className={secondary ? "wallet-addr-secondary" : undefined}
+                                title={secondary ? "Also part of this wallet in this transaction (spent from or co-input)" : undefined}
+                              >
+                                <AddressLink address={a} short tag={sameAddress(a, addr) ? "this address" : undefined} />
+                              </div>
+                            );
+                          })}
                       </td>
                       <td className={`num ${net > 0n ? "pos" : net < 0n ? "neg" : ""}`}>
                         {net > 0n ? "+" : ""}

@@ -281,6 +281,8 @@ export interface WalletHistoryEntry {
   hash: string;
   block_time: number;
   addresses: string[];
+  /** Wallet address the money went to (new change address on a hop). Older APIs omit it. */
+  main_address?: string | null;
   received_sompi: number;
   sent_sompi: number;
   net_sompi: number;
