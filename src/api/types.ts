@@ -267,6 +267,8 @@ export interface ChainLink {
   position: number;
   via_transaction_id: string | null;
   via_block_time: number | null;
+  /** Not a change address: spent together with the wallet in via_transaction_id. Older APIs omit it. */
+  co_input?: boolean;
 }
 
 export interface WalletChain {
@@ -291,9 +293,18 @@ export interface WalletHistoryEntry {
   net_sompi: number;
 }
 
+export interface FundedAddress {
+  address: string;
+  balance_sompi: number;
+}
+
 export interface WalletHistory {
   address: string;
   chain_length: number;
   total: number;
+  /** What the whole wallet holds now (sum over its addresses). Older APIs omit it. */
+  balance_sompi?: number;
+  /** Wallet addresses with a balance, largest first. */
+  funded_addresses?: FundedAddress[];
   transactions: WalletHistoryEntry[];
 }

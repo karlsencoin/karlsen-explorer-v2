@@ -174,8 +174,54 @@ function WalletHistoryView({ addr, page, onPage, tags }: { addr: string; page: n
   const chain = useFetch(`chain:${addr}`, (s) => api.walletChain(addr, s));
   const hist = useFetch(`whist:${addr}:${page}`, (s) => api.walletHistory(addr, WALLET_PAGE, page * WALLET_PAGE, s));
   const links = chain.data?.addresses ?? [];
+  const funded = hist.data?.funded_addresses ?? [];
   return (
     <>
+      {hist.data?.balance_sompi != null && hist.data.chain_length > 1 ? (
+        <article className="card">
+          <div className="card-head">
+            <h2>Wallet balance</h2>
+            <span className="muted small">
+              likely one wallet: every address below holds part of the same balance, so the rich list shows it on several rows
+            </span>
+          </div>
+          <div className="card-body">
+            <p className="wallet-total">
+              {sompiToKls(BigInt(hist.data.balance_sompi))} <span className="muted">KLS</span>
+              <span className="muted small">
+                {" "}
+                across {funded.length} address{funded.length === 1 ? "" : "es"} with a balance (of {hist.data.chain_length} in the wallet)
+              </span>
+            </p>
+          </div>
+          {funded.length > 0 ? (
+            <div className="table-scroll">
+              <table className="data">
+                <thead>
+                  <tr>
+                    <th scope="col">Address</th>
+                    <th scope="col" className="num">
+                      Balance
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {funded.map((f) => (
+                    <tr key={f.address} className={sameAddress(f.address, addr) ? "current" : undefined}>
+                      <td>
+                        <AddressLink address={f.address} tag={sameAddress(f.address, addr) ? "this address" : tags[withPrefix(f.address)]} />
+                      </td>
+                      <td className="num">
+                        {sompiToKls(BigInt(f.balance_sompi))} <span className="muted">KLS</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+        </article>
+      ) : null}
       <article className="card">
         <div className="card-head">
           <h2>Wallet change chain</h2>
@@ -210,7 +256,18 @@ function WalletHistoryView({ addr, page, onPage, tags }: { addr: string; page: n
                     <td>
                       <AddressLink address={l.address} tag={tags[l.address]} />
                     </td>
-                    <td>{l.via_transaction_id ? <TxLink id={l.via_transaction_id} short /> : <span className="muted">start of the chain</span>}</td>
+                    <td>
+                      {l.co_input && l.via_transaction_id ? (
+                        <>
+                          <span className="muted">spent together with the wallet in </span>
+                          <TxLink id={l.via_transaction_id} short />
+                        </>
+                      ) : l.via_transaction_id ? (
+                        <TxLink id={l.via_transaction_id} short />
+                      ) : (
+                        <span className="muted">start of the chain</span>
+                      )}
+                    </td>
                     <td className="muted" title={l.via_block_time ? formatUtc(l.via_block_time) + " UTC" : ""}>
                       {l.via_block_time ? formatAge(l.via_block_time) + " ago" : "—"}
                     </td>
