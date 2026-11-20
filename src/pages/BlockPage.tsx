@@ -114,7 +114,14 @@ function BlockView({ b }: { b: Block }) {
                 <span className="muted">—</span>
               ),
             ],
-            ["Difficulty", <span className="mono">{v.difficulty.toLocaleString("en-US", { maximumFractionDigits: 2 })}</span>],
+            [
+              "Difficulty",
+              // Shown x2, on the same scale as hashrate (1 BPS network), like KGI.
+              // The API keeps the node's raw value for wire compatibility.
+              <span className="mono" title={`Raw node value: ${v.difficulty.toLocaleString("en-US", { maximumFractionDigits: 2 })}`}>
+                {(v.difficulty * 2).toLocaleString("en-US", { maximumFractionDigits: 2 })}
+              </span>,
+            ],
             ["Blue work", <span className="mono break">{h.blueWork}</span>],
             ["Bits / nonce", <span className="mono">{h.bits} / {h.nonce}</span>],
             ["Version", <span className="mono">{h.version}</span>],
