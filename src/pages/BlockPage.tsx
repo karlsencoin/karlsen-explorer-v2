@@ -93,7 +93,16 @@ function BlockView({ b }: { b: Block }) {
               "Chain block",
               v.isChainBlock ? <span className="ok">yes</span> : <span className="amber">no (merged by another block)</span>,
             ],
-            ["Color", b.extra.color ? <span className={b.extra.color === "blue" ? "ok" : "amber"}>{b.extra.color}</span> : <span className="muted">—</span>],
+            [
+              "Color",
+              b.extra?.color ? (
+                <span className={b.extra.color === "blue" ? "ok" : "amber"}>{b.extra.color}</span>
+              ) : (
+                <span className="muted" title="No chain block has merged this block yet, or the merging block is outside the searched range">
+                  not determined yet
+                </span>
+              ),
+            ],
             [
               "Miner",
               b.extra.minerAddress ? (

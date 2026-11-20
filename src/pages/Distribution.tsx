@@ -2,9 +2,11 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import type { RichEntry } from "../api/types";
 import { LoadState, PageTitle, Pager } from "../components/Common";
+import { useState } from "react";
 import { AddressLink } from "../components/Links";
 import { withPrefix } from "../lib/address";
-import { useAddressTags } from "../lib/tags";
+import { sompiToKls } from "../lib/format";
+import { useAddressTags, type TagCategory, type TagDetails, type TagInfo } from "../lib/tags";
 import { useFetch } from "../lib/useFetch";
 
 const RICH_PAGE = 100;
@@ -61,7 +63,7 @@ function Trend({ e }: { e: RichEntry }) {
   );
 }
 
-function AddressTable({ rows, start, tags, showTrend }: { rows: RichEntry[]; start: number; tags: Record<string, string>; showTrend: boolean }) {
+function AddressTable({ rows, start, tags, showTrend }: { rows: RichEntry[]; start: number; tags: TagDetails; showTrend: boolean }) {
   return (
     <div className="table-scroll">
       <table className="data">
@@ -101,6 +103,135 @@ function AddressTable({ rows, start, tags, showTrend }: { rows: RichEntry[]; sta
         </tbody>
       </table>
     </div>
+  );
+}
+
+const CATEGORY_NAME: Record<TagCategory, string> = {
+  exchange: "Exchange",
+  pool: "Mining pool",
+  solo: "Solo miners",
+  bridge: "Bridge",
+  other: "Other",
+};
+
+interface EntityRow {
+  key: string;
+  name: string;
+  category: TagCategory;
+  /** Solo miners share one label but are unrelated wallets. */
+  separateWallets: boolean;
+  members: { address: string; tag: TagInfo; balance: bigint }[];
+  total: bigint;
+}
+
+function groupEntities(tags: TagDetails, balances: Map<string, bigint>): EntityRow[] {
+  const groups = new Map<string, EntityRow>();
+  for (const [address, tag] of Object.entries(tags)) {
+    const key = `${tag.category}:${tag.entity}`;
+    let g = groups.get(key);
+    if (!g) {
+      g = {
+        key,
+        name: tag.entity,
+        category: tag.category,
+        separateWallets: tag.category === "solo",
+        members: [],
+        total: 0n,
+      };
+      groups.set(key, g);
+    }
+    const balance = balances.get(address) ?? 0n;
+    g.members.push({ address, tag, balance });
+    g.total += balance;
+  }
+  const rows = [...groups.values()];
+  for (const g of rows) g.members.sort((a, b) => (b.balance > a.balance ? 1 : b.balance < a.balance ? -1 : 0));
+  return rows.sort((a, b) => (b.total > a.total ? 1 : b.total < a.total ? -1 : 0));
+}
+
+/**
+ * Known owners with all of their tagged addresses added up. An exchange or a
+ * pool uses many addresses (a new change address per withdrawal, several
+ * payout wallets), so the rich list alone shows the same name several times.
+ */
+function KnownEntities({ tags, totalKls }: { tags: TagDetails; totalKls: number | undefined }) {
+  const addresses = Object.keys(tags);
+  const bal = useFetch(`entity-balances:${addresses.length}`, (s) =>
+    addresses.length ? api.balances(addresses, s) : Promise.resolve(new Map<string, bigint>()),
+  );
+  const [open, setOpen] = useState<string | null>(null);
+  if (!addresses.length) return null;
+  const rows = bal.data ? groupEntities(tags, bal.data).filter((g) => g.total > 0n) : [];
+  const totalSompi = totalKls ? BigInt(Math.round(totalKls)) * 100_000_000n : 0n;
+  const pct = (v: bigint) => (totalSompi > 0n ? (Number((v * 1_000_000n) / totalSompi) / 10_000).toFixed(4) : "—");
+
+  return (
+    <article className="card">
+      <div className="card-head">
+        <h2>Known entities</h2>
+        <span className="muted small">all tagged addresses of one owner added up · dashed badge = unproven guess</span>
+      </div>
+      {!bal.data ? (
+        <LoadState error={bal.error} loading={bal.loading} what="Entity balances" />
+      ) : (
+        <div className="table-scroll">
+          <table className="data">
+            <thead>
+              <tr>
+                <th scope="col">Entity</th>
+                <th scope="col">Type</th>
+                <th scope="col" className="num">
+                  Addresses holding KLS
+                </th>
+                <th scope="col" className="num">
+                  Balance
+                </th>
+                <th scope="col" className="num">
+                  Supply
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((g) => {
+                const holding = g.members.filter((m) => m.balance > 0n);
+                const unproven = holding.filter((m) => m.tag.source === "derived-unconfirmed").length;
+                const isOpen = open === g.key;
+                return (
+                  <tr key={g.key}>
+                    <td>
+                      <button type="button" className="entity-toggle" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : g.key)}>
+                        {isOpen ? "▾" : "▸"} {g.separateWallets ? `${g.name}s` : g.name}
+                      </button>
+                      {g.separateWallets ? <div className="muted small">separate miners, shown together only by type</div> : null}
+                      {isOpen ? (
+                        <ul className="entity-list">
+                          {holding.map((m) => (
+                            <li key={m.address}>
+                              <AddressLink address={m.address} short tag={m.tag} />{" "}
+                              <span className="muted">{sompiToKls(m.balance, 2)} KLS</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </td>
+                    <td>{CATEGORY_NAME[g.category]}</td>
+                    <td className="num">
+                      {holding.length.toLocaleString("en-US")}
+                      <span className="muted"> of {g.members.length.toLocaleString("en-US")} tagged</span>
+                      {unproven ? <div className="amber small">{unproven} unconfirmed</div> : null}
+                    </td>
+                    <td className="num">
+                      {sompiToKls(g.total, 2)} <span className="muted">KLS</span>
+                    </td>
+                    <td className="num">{pct(g.total)}%</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </article>
   );
 }
 
@@ -200,6 +331,8 @@ export function Distribution() {
           </article>
         </>
       )}
+
+      <KnownEntities tags={tags} totalKls={sum?.total_balance_kls} />
 
       <article className="card">
         <div className="card-head">

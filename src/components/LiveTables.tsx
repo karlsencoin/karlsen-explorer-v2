@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import type { LiveBlock, LiveTx } from "../live/feed";
 import { formatAge, formatLocal, formatUtc, groupInt, sompiToKls } from "../lib/format";
-import type { TagMap } from "../lib/tags";
+import type { TagDetails } from "../lib/tags";
 import { useNow } from "../lib/useNow";
 import { AddressLink, BlockLink, TxLink } from "./Links";
 
@@ -88,7 +88,7 @@ export function LatestBlocks(props: { blocks: LiveBlock[]; paused: boolean; onTo
 
 export function LatestTransactions(props: {
   txs: LiveTx[];
-  tags: TagMap;
+  tags: TagDetails;
   hideCoinbase: boolean;
   onToggleCoinbase: () => void;
   paused: boolean;

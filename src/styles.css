@@ -199,6 +199,17 @@ table.data tr.fresh td { animation: flash 1.2s ease-out; }
 .hash-list a { overflow-wrap: anywhere; word-break: break-all; }
 .icon-btn.small { width: 28px; height: 28px; vertical-align: middle; }
 .tag.neutral { background: var(--ink-3); color: var(--text-muted); }
+/* Owner badges by category; dashed border = unproven derived guess. */
+.tag.cat-exchange { background: var(--violet-bg); color: var(--violet-text); }
+.tag.cat-pool { background: var(--green-bg); color: var(--green-text); }
+.tag.cat-solo { background: var(--ink-3); color: var(--text); }
+.tag.cat-bridge { background: var(--flash); color: var(--accent); }
+.tag.unproven { background: transparent; border: 1px dashed var(--amber); color: var(--amber); }
+.tag-role { opacity: 0.75; }
+.entity-list { margin: 6px 0 0; padding: 0; list-style: none; }
+.entity-list li { padding: 2px 0; font-size: 12px; }
+.entity-toggle { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font: inherit; }
+
 .io-grid { display: flex; flex-wrap: wrap; gap: 16px; }
 .io-grid > .card { flex: 1 1 480px; min-width: 0; overflow: hidden; }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }

@@ -63,6 +63,23 @@ export async function getJson<T>(path: string, signal?: AbortSignal): Promise<T>
   return (await (await getResponse(path, signal)).json()) as T;
 }
 
+/** POST a JSON body and read a JSON answer. */
+export async function postJson<T>(path: string, body: unknown, signal?: AbortSignal): Promise<T> {
+  const timeout = AbortSignal.timeout(TIMEOUT_MS);
+  const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    signal: combined,
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new ApiError(res.status, path, `${res.status} ${res.statusText}`);
+  return (await res.json()) as T;
+}
+
+/** Most addresses the API takes in one POST /addresses/balances. */
+const BALANCES_BATCH = 1000;
+
 const enc = encodeURIComponent;
 
 export const api = {
@@ -75,7 +92,7 @@ export const api = {
   marketData: (s?: AbortSignal) => getJson<MarketData>("/info/market-data", s),
   block: (hash: string, includeTransactions = true, s?: AbortSignal) =>
     getJson<Block>(
-      `/blocks/${encodeURIComponent(hash)}?includeTransactions=${includeTransactions ? "true" : "false"}`,
+      `/blocks/${encodeURIComponent(hash)}?includeTransactions=${includeTransactions ? "true" : "false"}&includeColor=true`,
       s,
     ),
   transaction: (id: string, s?: AbortSignal) =>
@@ -107,5 +124,18 @@ export const api = {
   range: (minKls: number, maxKls: number, s?: AbortSignal) =>
     getJson<RichEntry[]>(`/analytics/addresses/range?min_amount=${minKls}&max_amount=${maxKls}`, s),
   distributionSummary: (s?: AbortSignal) => getJson<DistributionSummary>("/analytics/addresses/distribution-summary", s),
+  /** Balances (sompi) of many addresses, batched to the API's limit. */
+  balances: async (addresses: string[], s?: AbortSignal): Promise<Map<string, bigint>> => {
+    const out = new Map<string, bigint>();
+    for (let i = 0; i < addresses.length; i += BALANCES_BATCH) {
+      const rows = await postJson<{ address: string; balance: number | string }[]>(
+        "/addresses/balances",
+        { addresses: addresses.slice(i, i + BALANCES_BATCH) },
+        s,
+      );
+      for (const r of rows) out.set(r.address, BigInt(r.balance));
+    }
+    return out;
+  },
   bridgeReserves: (s?: AbortSignal) => getJson<BridgeReserves>("/bridge/reserves", s),
 };

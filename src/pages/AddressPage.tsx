@@ -5,7 +5,7 @@ import { CopyButton, LoadState, PageTitle, Pager } from "../components/Common";
 import { AddressLink, TxLink } from "../components/Links";
 import { sameAddress, withPrefix } from "../lib/address";
 import { formatAge, formatUsd, formatUtc, groupInt, sompiToKls, toBigInt } from "../lib/format";
-import { useAddressTags } from "../lib/tags";
+import { useAddressTags, type TagDetails } from "../lib/tags";
 import { useFetch } from "../lib/useFetch";
 import { usePoll } from "../lib/usePoll";
 
@@ -170,7 +170,7 @@ const WALLET_PAGE = 25;
  * The wallet's change chain (addresses whose balance moved on to a fresh
  * change address) and the merged history of all of them.
  */
-function WalletHistoryView({ addr, page, onPage, tags }: { addr: string; page: number; onPage: (p: number) => void; tags: Record<string, string> }) {
+function WalletHistoryView({ addr, page, onPage, tags }: { addr: string; page: number; onPage: (p: number) => void; tags: TagDetails }) {
   const chain = useFetch(`chain:${addr}`, (s) => api.walletChain(addr, s));
   const hist = useFetch(`whist:${addr}:${page}`, (s) => api.walletHistory(addr, WALLET_PAGE, page * WALLET_PAGE, s));
   const links = chain.data?.addresses ?? [];
